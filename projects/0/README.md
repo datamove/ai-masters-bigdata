@@ -115,7 +115,8 @@ This assumes that filtered.csv is in the current folder, not in hdfs:
 
 ```
 cd ozon-masters-bigdata
-projects/0/train.sh 0 filtered.csv`
+hdfs dfs -getmerge filtered.csv filtered.csv
+projects/0/train.sh 0 filtered.csv
 ```
 
 где 0 - номер проекта, filtered.csv - путь к файлу с тренировочной выборкой (в этом примере предполагается, что файл лежит в ozon-masters-bigdata).
@@ -137,14 +138,16 @@ model = load("0.joblib")
 
 ```
 cd ozon-masters-bigdata
-projects/0/predict.sh 0 filtered.csv
+hdfs dfs -rm -r -f -skipTrash predicted.csv
+projects/0/predict.sh filtered.csv predicted.csv projects/0/predict.py,0.joblib predict.py
 ```
+
 где параметры:
 
-* номер проекта
-* путь к файлу с тестовой выборкой
-
-
+* путь к тестовому датасету (в примере используется тренировочный для простоты)
+* путь к файлу с предсказаниями
+* файлы для посылки с задачей (включая тренированную модель)
+* скрипт для запуска
 
 
 ## Flask app
