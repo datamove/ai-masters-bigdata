@@ -1,3 +1,5 @@
 *.joblib
 *.crc
 /*csv
+__pycache__
+
