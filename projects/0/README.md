@@ -34,6 +34,10 @@ train.py
 train.sh
 ```
 
+## Семплирование датасета
+
+Разработайте скрипт sample.py который сэмплирует большой датасет и получает репрезентативный датасет маленького размера, пригодного для обучения на одном сервере
+
 ## Фильтрация датасета
 
 Разработайте скрипт filter.py для фильтрации датасета, который берет записи из датасета на стандартном входе, применяет некоторую функцию фильтрации и выводит записи, прошедшие фильтр, на стандартный вывод.
@@ -149,6 +153,17 @@ projects/0/predict.sh filtered.csv predicted.csv projects/0/predict.py,0.joblib 
 * файлы для посылки с задачей (включая тренированную модель)
 * скрипт для запуска
 
+## Проверка
+
+Для проверки на понадобится доступ к собержимому вашего репозитория.
+
+### Deploy keys
+
+Для доступа (только для чтения) в ваш репохиторий ozon-masters-bigdata, добавте следующий публичный ключ в ваш репизиторий, используя инструкцию https://developer.github.com/v3/guides/managing-deploy-keys/#deploy-keys (пункты 2-8; отмечать галочку Allow write access НЕ надо).
+
+```
+ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC+K60wfXNhZ+hUu155vf/xzfPIce23exvmAV09cBO6cAGAburmb9KOpfOzLqmAMs9fWjnO0dzwQPy7/vxFT7+Swy4QILX2oI2GkIxCo0l9A2b2lyj2krlhE1NRWLtoSs90F/U4muTqh0pObwkllWrqgUy75hxq2txODETb+T1k7pSWg3MjQaSJXqIGFHzmd7BaDxLQWupDWt1Wd/ZK7jOEXoPaGU7voGNI0NEtn6UFkeMODmHrrUAXxI0wFQQnok9Vn6CyWN6AG/pwVCMnHU3IdQnA2zaADv7WVdFp+4jnw/ggg7Px4iyzRzQh305gx0FRnJKm/2dh+smWKemr6XQp datamove@ip-10-0-1-212
+```
 
 ## Flask app
 
