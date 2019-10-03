@@ -10,9 +10,17 @@
 
 `doc_id,hotel_name,hotel_url,street,city,state,country,zip,class,price,num_reviews,CLEANLINESS,ROOM,SERVICE,LOCATION,VALUE,COMFORT,overall_ratingsource`
 
-Вам надо предсказать `overall_ratingsource`.
+Вам надо предсказать `overall_ratingsource`. Метрика - МАЕ.
 
 Датасет содержится в файле hotels.cvs в папке референсного проекта.
+
+## Последовательность действий
+
+* обучение модели на заданном тестовом датасете.
+* валидация модели на заданном валидационном датасете
+* валидация фильтрации и предсказания на фильтрованном датасете для заданного валидационного датасета и условий фильтрациию.
+* коммит кода в ваш приватный репо
+* вызов прверки
 
 ## Оформление работы
 
@@ -190,9 +198,31 @@ usa_san francisco_the_herbert_hotel,3.4216216216216218
 
 В редьюсере мы будем считывать их и считать метрику на этих парах.
 
+Запуск скорера:
+
+```
+hdfs dfs -rm -r -f -skipTrash score
+projects/0/scorer.sh filtered-target.csv predicted.csv score projects/0/scorer.py scorer.py
+```
+
+где аргументы:
+
+* путь к входному файлу с истинным значение целевой переменной
+* путь к выходному файлу с предсказанным значениес
+* путь к файлы со значением метрики
+* файлы, которые надо послать вместе с задачей, через запятую
+* имя файла с программой редьюсером, то есть scorer.py.
+
+Результат работы - файл с одним значением - метрикой.
+
+```
+$ hdfs dfs -cat score/*
+0.03830651020242537	
+```
+
 ## Проверка
 
-Для проверки на понадобится доступ к собержимому вашего репозитория.
+Для проверки нам понадобится доступ к содержимому вашего репозитория.
 
 ### Deploy keys
 
@@ -201,6 +231,15 @@ usa_san francisco_the_herbert_hotel,3.4216216216216218
 ```
 ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC+K60wfXNhZ+hUu155vf/xzfPIce23exvmAV09cBO6cAGAburmb9KOpfOzLqmAMs9fWjnO0dzwQPy7/vxFT7+Swy4QILX2oI2GkIxCo0l9A2b2lyj2krlhE1NRWLtoSs90F/U4muTqh0pObwkllWrqgUy75hxq2txODETb+T1k7pSWg3MjQaSJXqIGFHzmd7BaDxLQWupDWt1Wd/ZK7jOEXoPaGU7voGNI0NEtn6UFkeMODmHrrUAXxI0wFQQnok9Vn6CyWN6AG/pwVCMnHU3IdQnA2zaADv7WVdFp+4jnw/ggg7Px4iyzRzQh305gx0FRnJKm/2dh+smWKemr6XQp datamove@ip-10-0-1-212
 ```
+
+### Шаги проверки
+
+* клонирование вашего репозитория.
+* запуск тренировки модели на известном тренировочном датасете
+* запуск фильтрации неизвестного заранее тестового датасета с неизвестным заранее условием
+* запуск предсказания на этом срезе
+* запуск расчета метрики для полученных предсказаний.
+* запись полученной метрики.
 
 ## Flask app
 
