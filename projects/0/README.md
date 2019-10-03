@@ -1,7 +1,6 @@
 # Примерный проект
 
-Этот проект не надо делать, но можно посмотреть, как он устроен, и что ожидается от вас в настоящих заданиях.
-Для образца проекта возьмите `https://github.com/datamove/ozon-masters-bigdata`
+Несмотря на то, что в этом проекте содержатся задания в виде "напишите", "создайте", этот проект не надо делать, но можно  (и нужно) посмотреть, как он устроен, и что ожидается от вас в настоящих заданиях.
 
 ## Описание задачи
 
@@ -9,9 +8,9 @@
 
 Поля датасета:
 
-`doc_id,hotel_name,hotel_url,street,city,state,country,zip,class,price,num_reviews,CLEANLINESS,ROOM,SERVICE,LOCATION,VALUE,COMFORT,overall_ratingsource
-`
-Вам надо предсказать overall_ratingsource
+`doc_id,hotel_name,hotel_url,street,city,state,country,zip,class,price,num_reviews,CLEANLINESS,ROOM,SERVICE,LOCATION,VALUE,COMFORT,overall_ratingsource`
+
+Вам надо предсказать `overall_ratingsource`.
 
 Датасет содержится в файле hotels.cvs в папке референсного проекта.
 
@@ -33,50 +32,6 @@ predict.sh
 train.py
 train.sh
 ```
-
-## Фильтрация датасета
-
-Разработайте скрипт filter.py для фильтрации датасета, который берет записи из датасета на стандартном входе, применяет некоторую функцию фильтрации и выводит записи, прошедшие фильтр, на стандартный вывод.
-
-Фильтрующая функция определяется в файле `filter_cond.py` и имеет следующий интерфейс:
-
-```
-def filter_cond(line_dict):
-    """Filter function
-    Takes a dict with field names and values as the argument
-    Returns True if conditions are satisfied
-    """
-    cond_match = (
-       int(line_dict["num_reviews"]) > 20
-    ) 
-    return True if cond_match else False
-```
-
-## Запуск фильтрации
-
-Скопируйте датасет на HDFS:
-
-```
-cd ozon-masters-bigdata
-hdfs dfs -copyFromLocal projects/0/hotels.csv /user/$USER/hotels.csv
-```
-
-Разработайте `filter.sh`, который должен запускать map-reduce задачу на кластер:
-
-```
-cd ozon-masters-bigdata
-hdfs dfs -rm -f -r -skipTrash filtered.csv
-projects/0/filter.sh hotels.csv filtered.csv projects/0/filter.py,projects/0/filter_cond.py filter.py
-```
-
-Параметры скрипта filter.sh:
-
-* путь к входному файлу
-* путь к выходному файлу
-* файлы, которые надо послать вместе с задачей, через запятую
-* имя файла с программой маппером, то есть filter.py
-
-Помните, что если путь к файлам hotels.csv and filtered.csv задан без '/' в начале, то  файлы берутся относительно вашей домашней директории в HDFS /user/$USER.
 
 ## Model
 
@@ -148,6 +103,92 @@ projects/0/predict.sh filtered.csv predicted.csv projects/0/predict.py,0.joblib 
 * путь к файлу с предсказаниями
 * файлы для посылки с задачей (включая тренированную модель)
 * скрипт для запуска
+
+## Скоринг на валидационной выборке
+
+Мы будем проверять работу модели на нескольких срезах датасета. Разработайте скрипт, для фильтрации по заданному условию. Это скрипт должен будет считывать датасет из стандартного ввода и выводить на стандортный вывод только записи, удовлетворяющие заданным условиям. Кроме того, поскольку мы делаем валидиционную выбюорку, то нужно будет получить 2 файла - с целевой переменной и с фичами.
+
+## Фильтрация датасета
+
+Разработайте скрипт filter.py для фильтрации датасета, который берет записи из датасета на стандартном входе, применяет некоторую функцию фильтрации и выводит записи, прошедшие фильтр, на стандартный вывод.
+
+Для одновременного выделения целевой переменной из датасета, подайте ее название в качестве агрумента со знаком `+`.
+Для выделения признаков, подайте название целевой переменной в качестве агрумента со знаком `-`.
+В обоих случаях первая колонка (идентификатор записи) так же выводится.
+
+Фильтрующая функция определяется в файле `filter_cond.py` и имеет следующий интерфейс:
+
+```
+def filter_cond(line_dict):
+    """Filter function
+    Takes a dict with field names and values as the argument
+    Returns True if conditions are satisfied
+    """
+    cond_match = (
+       int(line_dict["num_reviews"]) > 20
+    ) 
+    return True if cond_match else False
+```
+
+
+## Запуск фильтрации
+
+Скопируйте датасет на HDFS:
+
+```
+cd ozon-masters-bigdata
+hdfs dfs -copyFromLocal projects/0/hotels.csv /user/$USER/hotels.csv
+```
+
+Разработайте `filter.sh`, который должен запускать map-reduce задачу на кластер:
+
+Параметры скрипта filter.sh:
+
+* путь к входному файлу
+* путь к выходному файлу
+* файлы, которые надо послать вместе с задачей, через запятую
+* имя файла с программой маппером, то есть filter.py, с опциональным аргументом +column or -column, где column - ваша целевая переменная.
+
+Помните, что если путь к файлам hotels.csv and filtered.csv задан без '/' в начале, то  файлы берутся относительно вашей домашней директории в HDFS /user/$USER.
+
+### Простая фильтрация
+
+```
+cd ozon-masters-bigdata
+hdfs dfs -rm -f -r -skipTrash filtered.csv
+projects/0/filter.sh hotels.csv filtered.csv projects/0/filter.py,projects/0/filter_cond.py filter.py
+```
+
+### Фильтрация с выводом только целевой переменной
+
+```
+cd ozon-masters-bigdata
+hdfs dfs -rm -f -r -skipTrash filtered.csv
+projects/0/filter.sh hotels.csv filtered-target.csv projects/0/filter.py,projects/0/filter_cond.py "filter.py +overall_ratingsource"
+```
+
+### Фильтрация с выводом только признаков
+
+```
+cd ozon-masters-bigdata
+hdfs dfs -rm -f -r -skipTrash filtered.csv
+projects/0/filter.sh hotels.csv filtered-features.csv projects/0/filter.py,projects/0/filter_cond.py "filter.py -overall_ratingsource"
+```
+
+## Скоринг модели на валидационных срезах
+
+Запустите predict.sh на валидационном среде и получите `predicted.csv`
+
+Разработайте программу для подсчета выбранной метрики на кластере. Вспомните, что у нас filtered-target.csv и predicted.csv содержат идентификатор записи. Воспользуемся им в качестве ключа для редюсера. Маппер нам не нужен, вернее, мы воспользуемся им для объединения filtered-target.csv и predicted.csv. Затем понадобится стадия shuffle, после которой записи будут отсортированы по ключу, то есть иметь вид:
+
+```
+usa_san francisco_the_herbert_hotel,3.3796997285893906	
+usa_san francisco_the_herbert_hotel,3.4216216216216218	
+```
+
+где одно из значений - истинное, другое предсказанное.
+
+В редьюсере мы будем считывать их и считать метрику на этих парах.
 
 ## Проверка
 
