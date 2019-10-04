@@ -1,21 +1,21 @@
 #!/bin/bash
 
-# 1st arg - true target path
-# 2nd arg - predicted target path
-# 3rd     - score output path
-# 4rd arg - files to send with the job
-# reducer file
+# 1st arg - files to send with the job
+# 2nd arg - true target path
+# 3rd arg - predicted target path
+# 4th arg - output path
+# 5th arg - reducer file
 
 HADOOP_CUR=/usr/hdp/current/
-HADOOP_EXE=$HADOOP_CUR/hadoop-client/bin/hadoop
+HADOOP_EXE=$HADOOP_CUR/hadoop-client/bin/yarn
 HADOOP_STREAM_JAR=$HADOOP_CUR/hadoop-mapreduce-client/hadoop-streaming.jar
-INPUT1=$1
-INPUT2=$2
-OUTPUT=$3
-FILES=$4
+FILES=$1
+INPUT1=$2
+INPUT2=$3
+OUTPUT=$4
 REDUCER=$5
 
-$HADOOP_EXE jar $HADOOP_STREAM_JAR  -files $FILES -D mapred.reduce.tasks=1 -input $INPUT1 -input $INPUT2 -output $OUTPUT -mapper cat -reducer $REDUCER
+$HADOOP_EXE jar $HADOOP_STREAM_JAR  -files $FILES -D mapred.reduce.tasks=1 -input $INPUT1 -input $INPUT2 -output $OUTPUT -mapper cat -reducer "$REDUCER"
 
 
 
