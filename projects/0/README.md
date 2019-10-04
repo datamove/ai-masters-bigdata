@@ -59,6 +59,17 @@ model = Pipeline(steps=[
 
 `from model import model`
 
+Также в файле с моделью мы определяем поля датасета:
+
+```
+fields = """doc_id,hotel_name,hotel_url,street,city,state,country,zip,class,price,
+num_reviews,CLEANLINESS,ROOM,SERVICE,LOCATION,VALUE,COMFORT,overall_ratingsource""".replace("\n",'').split(",")
+```
+
+и так же импортируем их:
+
+`from model import fields`
+
 ## Обучение модели
 
 Обучение модели проводится на семплированном датасете на одном узле. Разработайте программу train.py, которая импортирует ранее определенную модель и обучает её. На вход в качестве аргумента подается 
@@ -81,11 +92,10 @@ This assumes that filtered.csv is in the current folder, not in hdfs:
 
 ```
 cd ozon-masters-bigdata
-hdfs dfs -getmerge filtered.csv filtered.csv
-projects/0/train.sh 0 filtered.csv
+projects/0/train.sh 0 projects/0/hotels.csv
 ```
 
-где 0 - номер проекта, filtered.csv - путь к файлу с тренировочной выборкой (в этом примере предполагается, что файл лежит в ozon-masters-bigdata).
+где 0 - номер проекта, hotels.csv - путь к файлу с тренировочной выборкой (включен в папке проекта в репо ozon-masters-bigdata).
 
 ## Предсказания (инференс)
 
@@ -104,8 +114,11 @@ model = load("0.joblib")
 
 ```
 cd ozon-masters-bigdata
+#copy input dataset to HDFS
+hdfs dfs -copyFromLocal hotels.csv hotels.csv
+#remove output dataset if exists
 hdfs dfs -rm -r -f -skipTrash predicted.csv
-projects/0/predict.sh projects/0/predict.py,0.joblib filtered.csv predicted.csv predict.py
+projects/0/predict.sh projects/0/predict.py,0.joblib hotels.csv predicted.csv predict.py
 ```
 
 где параметры:
@@ -144,13 +157,6 @@ def filter_cond(line_dict):
 
 
 ## Запуск фильтрации
-
-Скопируйте датасет на HDFS:
-
-```
-cd ozon-masters-bigdata
-hdfs dfs -copyFromLocal projects/0/hotels.csv /user/$USER/hotels.csv
-```
 
 Разработайте `filter.sh`, который должен запускать map-reduce задачу на кластер:
 
@@ -237,7 +243,7 @@ projects/0/filter_predict.sh projects/0/filter.py,projects/0/predict.py,projects
 * файлы, которые надо послать вместе с задачей, через запятую
 * путь к входному файлу 
 * путь к выходному файлу 
-* имя файла с программой мапперв, то есть filter.py.
+* имя файла с программой маппера, то есть filter.py.
 * имя файла с программой редьюсера, то есть predict.py.
 
 ## Проверка
@@ -246,7 +252,7 @@ projects/0/filter_predict.sh projects/0/filter.py,projects/0/predict.py,projects
 
 ### Deploy keys
 
-Для доступа (только для чтения) в ваш репохиторий ozon-masters-bigdata, добавте следующий публичный ключ в ваш репизиторий, используя инструкцию https://developer.github.com/v3/guides/managing-deploy-keys/#deploy-keys (пункты 2-8; отмечать галочку Allow write access НЕ надо).
+Для доступа (только для чтения) в ваш репозиторий ozon-masters-bigdata, добавте следующий публичный ключ в ваш репизиторий, используя инструкцию https://developer.github.com/v3/guides/managing-deploy-keys/#deploy-keys (пункты 2-8; отмечать галочку Allow write access НЕ надо).
 
 ```
 ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC+K60wfXNhZ+hUu155vf/xzfPIce23exvmAV09cBO6cAGAburmb9KOpfOzLqmAMs9fWjnO0dzwQPy7/vxFT7+Swy4QILX2oI2GkIxCo0l9A2b2lyj2krlhE1NRWLtoSs90F/U4muTqh0pObwkllWrqgUy75hxq2txODETb+T1k7pSWg3MjQaSJXqIGFHzmd7BaDxLQWupDWt1Wd/ZK7jOEXoPaGU7voGNI0NEtn6UFkeMODmHrrUAXxI0wFQQnok9Vn6CyWN6AG/pwVCMnHU3IdQnA2zaADv7WVdFp+4jnw/ggg7Px4iyzRzQh305gx0FRnJKm/2dh+smWKemr6XQp datamove@ip-10-0-1-212
@@ -262,7 +268,7 @@ ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC+K60wfXNhZ+hUu155vf/xzfPIce23exvmAV09cBO6
 
 ## Flask app
 
-Длф проверки работы shell скриптов можно использовать простой REST API сервер на основе Flask.
+Для проверки работы shell скриптов можно использовать простой REST API сервер на основе Flask.
 
 Запустите: ./flask-app.py` 
 
@@ -270,6 +276,6 @@ ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC+K60wfXNhZ+hUu155vf/xzfPIce23exvmAV09cBO6
 
 This triggers training of the model 0 by calling train.sh:
 
-`curl -X POST -H "Content-Type: application/json" -d '["0", "projects/0/filtered.csv"]' localhost:5000/train/0`
+`curl -X POST -H "Content-Type: application/json" -d '["0", "projects/0/hotels.csv"]' localhost:5000/train/0`
 
 and so on
