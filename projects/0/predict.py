@@ -5,6 +5,9 @@ import logging
 from joblib import load
 import pandas as pd
 
+sys.path.append('.')
+from model import fields
+
 #
 # Init the logger
 #
@@ -16,9 +19,8 @@ logging.info("ARGS {}".format(sys.argv[1:]))
 #load the model
 model = load("0.joblib")
 
-
-fields = """doc_id,hotel_name,hotel_url,street,city,state,country,zip,class,price,
-num_reviews,CLEANLINESS,ROOM,SERVICE,LOCATION,VALUE,COMFORT,overall_ratingsource""".replace("\n",'').split(",")
+#fields = """doc_id,hotel_name,hotel_url,street,city,state,country,zip,class,price,
+#num_reviews,CLEANLINESS,ROOM,SERVICE,LOCATION,VALUE,COMFORT,overall_ratingsource""".replace("\n",'').split(",")
 
 #read and infere
 read_opts=dict(
