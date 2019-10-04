@@ -105,14 +105,14 @@ model = load("0.joblib")
 ```
 cd ozon-masters-bigdata
 hdfs dfs -rm -r -f -skipTrash predicted.csv
-projects/0/predict.sh filtered.csv predicted.csv projects/0/predict.py,0.joblib predict.py
+projects/0/predict.sh projects/0/predict.py,0.joblib filtered.csv predicted.csv predict.py
 ```
 
 где параметры:
 
+* файлы для посылки с задачей (включая тренированную модель)
 * путь к тестовому датасету (в примере используется тренировочный для простоты)
 * путь к файлу с предсказаниями
-* файлы для посылки с задачей (включая тренированную модель)
 * скрипт для запуска
 
 
@@ -156,9 +156,9 @@ hdfs dfs -copyFromLocal projects/0/hotels.csv /user/$USER/hotels.csv
 
 Параметры скрипта filter.sh:
 
+* файлы, которые надо послать вместе с задачей, через запятую
 * путь к входному файлу
 * путь к выходному файлу
-* файлы, которые надо послать вместе с задачей, через запятую
 * имя файла с программой маппером, то есть filter.py, с опциональным аргументом +column or -column, где column - ваша целевая переменная.
 
 Помните, что если путь к файлам hotels.csv and filtered.csv задан без '/' в начале, то  файлы берутся относительно вашей домашней директории в HDFS /user/$USER.
@@ -168,7 +168,7 @@ hdfs dfs -copyFromLocal projects/0/hotels.csv /user/$USER/hotels.csv
 ```
 cd ozon-masters-bigdata
 hdfs dfs -rm -f -r -skipTrash filtered.csv
-projects/0/filter.sh hotels.csv filtered.csv projects/0/filter.py,projects/0/filter_cond.py filter.py
+projects/0/filter.sh projects/0/filter.py,projects/0/filter_cond.py hotels.csv filtered.csv filter.py
 ```
 
 ### Фильтрация с выводом только целевой переменной
@@ -176,7 +176,7 @@ projects/0/filter.sh hotels.csv filtered.csv projects/0/filter.py,projects/0/fil
 ```
 cd ozon-masters-bigdata
 hdfs dfs -rm -f -r -skipTrash filtered.csv
-projects/0/filter.sh hotels.csv filtered-target.csv projects/0/filter.py,projects/0/filter_cond.py "filter.py +overall_ratingsource"
+projects/0/filter.sh projects/0/filter.py,projects/0/filter_cond.py hotels.csv filtered-target.csv "filter.py +overall_ratingsource"
 ```
 
 ### Фильтрация с выводом только признаков
@@ -184,7 +184,7 @@ projects/0/filter.sh hotels.csv filtered-target.csv projects/0/filter.py,project
 ```
 cd ozon-masters-bigdata
 hdfs dfs -rm -f -r -skipTrash filtered.csv
-projects/0/filter.sh hotels.csv filtered-features.csv projects/0/filter.py,projects/0/filter_cond.py "filter.py -overall_ratingsource"
+projects/0/filter.sh projects/0/filter.py,projects/0/filter_cond.py hotels.csv filtered-features.csv  "filter.py -overall_ratingsource"
 ```
 
 ## Расчет метрики на валидационных срезах
@@ -206,15 +206,15 @@ usa_san francisco_the_herbert_hotel,3.4216216216216218
 
 ```
 hdfs dfs -rm -r -f -skipTrash score
-projects/0/scorer.sh filtered-target.csv predicted.csv score projects/0/scorer.py scorer.py
+projects/0/scorer.sh projects/0/scorer.py filtered-target.csv predicted.csv score scorer.py
 ```
 
 где аргументы:
 
+* файлы, которые надо послать вместе с задачей, через запятую
 * путь к входному файлу с истинным значение целевой переменной
 * путь к выходному файлу с предсказанным значениес
 * путь к файлу со значением метрики
-* файлы, которые надо послать вместе с задачей, через запятую
 * имя файла с программой редьюсера, то есть scorer.py.
 
 Результат работы - файл с одним значением - метрикой.
@@ -229,14 +229,14 @@ $ hdfs dfs -cat score/*
 Выше мы запускали отдельно фильтрацию и предсказания. Теперь мы запустим одну mapreduce задачу в которой мы будем фильтровать датасет на стадии map и предсказывать на стадии reduce. Приемущество - всего одна задача и не надо управлять промежуточными данными.
 
 ```
-projects/0/filter_predict.sh hotels.csv pred_with_filter2 projects/0/filter.py,projects/0/predict.py,projects/0/filter_cond.py,0.joblib filter.py predict.py
+projects/0/filter_predict.sh projects/0/filter.py,projects/0/predict.py,projects/0/filter_cond.py,0.joblib hotels.csv pred_with_filter filter.py predict.py
 ```
 
 где аргументы:
 
+* файлы, которые надо послать вместе с задачей, через запятую
 * путь к входному файлу 
 * путь к выходному файлу 
-* файлы, которые надо послать вместе с задачей, через запятую
 * имя файла с программой мапперв, то есть filter.py.
 * имя файла с программой редьюсера, то есть predict.py.
 
