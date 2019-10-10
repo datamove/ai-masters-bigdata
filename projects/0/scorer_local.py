@@ -25,6 +25,7 @@ try:
     true_path, pred_path = sys.argv[1:]
 except:
     logging.critical("Parameters: true_path (local) and pred_path (url or local)")
+    sys.exit(1)
 
 logging.info(f"TRUE PATH {true_path}")
 logging.info(f"PRED PATH {pred_path}")
@@ -36,7 +37,17 @@ df_true = pd.read_csv(true_path, header=None, index_col=0, names=["id", "true"])
 #open pred_path
 df_pred = pd.read_csv(pred_path, header=None, index_col=0, names=["id", "pred"])
 
+len_true = len(df_true)
+len_pred = len(df_pred)
+
+logging.info(f"TRUE RECORDS {len_true}")
+logging.info(f"PRED RECORDS {len_pred}")
+
+assert len_true == len_pred, f"Number of records differ in true and predicted sets"
+
 df = df_true.join(df_pred)
+len_df = len(df)
+assert len_true == len_df, f"Konined true and pred has different number of records: {len_df}"
 
 score = mean_absolute_error(df['true'], df['pred'])
 
