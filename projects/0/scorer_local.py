@@ -24,7 +24,11 @@ logging.info("ARGS {}".format(sys.argv[1:]))
 try:
     true_path, pred_path = sys.argv[1:]
 except:
-    print("Parameters: true_path (local) and pred_path (url or local)")
+    logging.critical("Parameters: true_path (local) and pred_path (url or local)")
+
+logging.info(f"TRUE PATH {true_path}")
+logging.info(f"PRED PATH {pred_path}")
+
 
 #open true path
 df_true = pd.read_csv(true_path, header=None, index_col=0, names=["id", "true"])
