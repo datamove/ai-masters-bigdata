@@ -4,6 +4,8 @@ import sys
 import os
 from glob import glob
 import logging
+
+sys.path.append('.')
 from model import fields
 
 #
