@@ -4,6 +4,7 @@ import sys
 import os
 from glob import glob
 import logging
+from model import fields
 
 #
 # Init the logger
@@ -28,8 +29,8 @@ exec(open(filter_cond_files[0]).read())
 #
 # dataset fields
 #
-fields = """doc_id,hotel_name,hotel_url,street,city,state,country,zip,class,price,
-num_reviews,CLEANLINESS,ROOM,SERVICE,LOCATION,VALUE,COMFORT,overall_ratingsource""".replace("\n",'').split(",")
+#fields = """doc_id,hotel_name,hotel_url,street,city,state,country,zip,class,price,
+#num_reviews,CLEANLINESS,ROOM,SERVICE,LOCATION,VALUE,COMFORT,overall_ratingsource""".replace("\n",'').split(",")
 
 #
 # Optional argument
@@ -69,6 +70,5 @@ for line in sys.stdin:
     if filter_cond(hotel_record):
         output = ",".join([hotel_record[x] for x in outfields])
         print(output)
-
 
 
