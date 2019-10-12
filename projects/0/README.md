@@ -147,7 +147,23 @@ projects/0/predict.sh projects/0/predict.py,0.joblib hotels.csv predicted.csv pr
 
 где аргументы - пути к файлам с истинным занчением целевой переменной и предсказанным значениемцелевой переменной соответственно. Для простоты реализации, это скрипт работает не на кластере, а локально, считывая истинные и предсказанные значения в память.
 
-Для некоторым метрик возможен расчет на кластере в парадигме мап-редьюс, см. ниже раздел Дополнительные возможности.
+Запуск метрики:
+
+```
+$ projects/0/scorer_local.py projects/0/filtered-target.csv  'http://head1:50070/webhdfs/v1/user/'$USER'/pred_with_filter/part-00000?op=OPEN'
+INFO:root:CURRENT_DIR /home/users/datamove/ozon-masters-bigdata
+INFO:root:SCRIPT CALLED AS projects/0/scorer_local.py
+INFO:root:ARGS ['projects/0/filtered-target.csv', 'http://head1:50070/webhdfs/v1/user/datamove/pred_with_filter/part-00000?op=OPEN']
+INFO:root:TRUE PATH projects/0/filtered-target.csv
+INFO:root:PRED PATH http://head1:50070/webhdfs/v1/user/datamove/pred_with_filter/part-00000?op=OPEN
+INFO:root:TRUE RECORDS 1746
+INFO:root:PRED RECORDS 1746
+0.096756706895581
+```
+
+Заметьте, как мы обращаемся к файлу, который находится в HDFS - через Webhdfs REST API.
+
+Общее замечание: для некоторым метрик возможен расчет на кластере в парадигме мап-редьюс, см. ниже раздел Дополнительные возможности.
 
 ## Фильтрация датасета
 
@@ -198,7 +214,7 @@ projects/0/filter.sh projects/0/filter.py,projects/0/filter_cond.py hotels.csv f
 Выше мы запускали отдельно фильтрацию и предсказания. Теперь мы запустим одну mapreduce задачу в которой мы будем фильтровать датасет на стадии map и предсказывать на стадии reduce. Приемущество - всего одна задача и не надо управлять промежуточными данными.
 
 ```
-projects/0/filter_predict.sh projects/0/filter.py,projects/0/predict.py,projects/0/filter_cond.py,0.joblib hotels.csv pred_with_filter filter.py predict.py
+projects/0/filter_predict.sh projects/0/filter.py,projects/0/predict.py,projects/0/filter_cond.py,projects/0/model.py,0.joblib hotels.csv pred_with_filter filter.py predict.py
 ```
 
 где аргументы:
