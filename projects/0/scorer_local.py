@@ -47,7 +47,7 @@ assert len_true == len_pred, f"Number of records differ in true and predicted se
 
 df = df_true.join(df_pred)
 len_df = len(df)
-assert len_true == len_df, f"Konined true and pred has different number of records: {len_df}"
+assert len_true == len_df, f"Kombined true and pred has different number of records: {len_df}"
 
 score = mean_absolute_error(df['true'], df['pred'])
 
