@@ -128,8 +128,8 @@ cd ozon-masters-bigdata
 #copy input dataset to HDFS
 hdfs dfs -copyFromLocal hotels.csv hotels.csv
 #remove output dataset if exists
-hdfs dfs -rm -r -f -skipTrash predicted.csv
-projects/0/predict.sh projects/0/predict.py,0.joblib hotels.csv predicted.csv predict.py
+hdfs dfs -rm -r -f predicted.csv
+projects/0/predict.sh projects/0/predict.py,projects/0/model.py,0.joblib hotels.csv predicted.csv predict.py
 ```
 
 где параметры:
@@ -138,32 +138,6 @@ projects/0/predict.sh projects/0/predict.py,0.joblib hotels.csv predicted.csv pr
 * путь к тестовому датасету (в примере используется тренировочный для простоты)
 * путь к файлу с предсказаниями
 * скрипт для запуска
-
-## Расчет метрики
-
-Для расчета метрики на валидационном датасете запустите
-
-`filter_local.py true_target predicted_target` 
-
-где аргументы - пути к файлам с истинным занчением целевой переменной и предсказанным значениемцелевой переменной соответственно. Для простоты реализации, это скрипт работает не на кластере, а локально, считывая истинные и предсказанные значения в память.
-
-Запуск метрики:
-
-```
-$ projects/0/scorer_local.py projects/0/filtered-target.csv  'http://head1:50070/webhdfs/v1/user/'$USER'/pred_with_filter/part-00000?op=OPEN'
-INFO:root:CURRENT_DIR /home/users/datamove/ozon-masters-bigdata
-INFO:root:SCRIPT CALLED AS projects/0/scorer_local.py
-INFO:root:ARGS ['projects/0/filtered-target.csv', 'http://head1:50070/webhdfs/v1/user/datamove/pred_with_filter/part-00000?op=OPEN']
-INFO:root:TRUE PATH projects/0/filtered-target.csv
-INFO:root:PRED PATH http://head1:50070/webhdfs/v1/user/datamove/pred_with_filter/part-00000?op=OPEN
-INFO:root:TRUE RECORDS 1746
-INFO:root:PRED RECORDS 1746
-0.096756706895581
-```
-
-Заметьте, как мы обращаемся к файлу, который находится в HDFS - через Webhdfs REST API.
-
-Общее замечание: для некоторым метрик возможен расчет на кластере в парадигме мап-редьюс, см. ниже раздел Дополнительные возможности.
 
 ## Фильтрация датасета
 
@@ -203,8 +177,8 @@ def filter_cond(line_dict):
 
 ```
 cd ozon-masters-bigdata
-hdfs dfs -rm -f -r -skipTrash filtered.csv
-projects/0/filter.sh projects/0/filter.py,projects/0/filter_cond.py hotels.csv filtered.csv filter.py
+hdfs dfs -rm -f -r filtered.csv
+projects/0/filter.sh projects/0/filter.py,projects/0/filter_cond.py,projects/0/model.py hotels.csv filtered.csv filter.py
 ```
 О дополнительном фукнционале filter.py, который позволяет самостоятельно "нарезать" валижационные выборки см. ниже в разделе Дополнительные возможности.
 
@@ -224,6 +198,32 @@ projects/0/filter_predict.sh projects/0/filter.py,projects/0/predict.py,projects
 * путь к выходному файлу 
 * имя файла с программой маппера, то есть filter.py.
 * имя файла с программой редьюсера, то есть predict.py.
+
+## Расчет метрики
+
+Для расчета метрики на валидационном датасете запустите
+
+`filter_local.py true_target predicted_target` 
+
+где аргументы - пути к файлам с истинным занчением целевой переменной и предсказанным значениемцелевой переменной соответственно. Для простоты реализации, это скрипт работает не на кластере, а локально, считывая истинные и предсказанные значения в память.
+
+Запуск метрики:
+
+```
+$ projects/0/scorer_local.py projects/0/filtered-target.csv  'http://head1:50070/webhdfs/v1/user/'$USER'/pred_with_filter/part-00000?op=OPEN'
+INFO:root:CURRENT_DIR /home/users/datamove/ozon-masters-bigdata
+INFO:root:SCRIPT CALLED AS projects/0/scorer_local.py
+INFO:root:ARGS ['projects/0/filtered-target.csv', 'http://head1:50070/webhdfs/v1/user/datamove/pred_with_filter/part-00000?op=OPEN']
+INFO:root:TRUE PATH projects/0/filtered-target.csv
+INFO:root:PRED PATH http://head1:50070/webhdfs/v1/user/datamove/pred_with_filter/part-00000?op=OPEN
+INFO:root:TRUE RECORDS 1746
+INFO:root:PRED RECORDS 1746
+0.096756706895581
+```
+
+Заметьте, как мы обращаемся к файлу, который находится в HDFS - через Webhdfs REST API.
+
+Общее замечание: для некоторым метрик возможен расчет на кластере в парадигме мап-редьюс, см. ниже раздел Дополнительные возможности.
 
 ## Проверка
 
