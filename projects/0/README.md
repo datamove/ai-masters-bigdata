@@ -231,11 +231,19 @@ INFO:root:PRED RECORDS 1746
 
 ### Deploy keys
 
-Для доступа (только для чтения) в ваш репозиторий ozon-masters-bigdata, добавте следующий публичный ключ в ваш репизиторий, используя инструкцию https://developer.github.com/v3/guides/managing-deploy-keys/#deploy-keys (пункты 2-8; отмечать галочку Allow write access НЕ надо).
+Для доступа (только для чтения) в ваш репозиторий ozon-masters-bigdata, добавьте в ваш репизиторий публичный ключ, который был сгенерирован индивидуально для каждого и находится у каждого в домашней директории под именем:
+
+`~/.ssh/id_rsa_deploy_key.pub`
+
+Чтобы получить контент ключа для копи-вставки, воспользутейсь командой `cat`:
 
 ```
-ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC+K60wfXNhZ+hUu155vf/xzfPIce23exvmAV09cBO6cAGAburmb9KOpfOzLqmAMs9fWjnO0dzwQPy7/vxFT7+Swy4QILX2oI2GkIxCo0l9A2b2lyj2krlhE1NRWLtoSs90F/U4muTqh0pObwkllWrqgUy75hxq2txODETb+T1k7pSWg3MjQaSJXqIGFHzmd7BaDxLQWupDWt1Wd/ZK7jOEXoPaGU7voGNI0NEtn6UFkeMODmHrrUAXxI0wFQQnok9Vn6CyWN6AG/pwVCMnHU3IdQnA2zaADv7WVdFp+4jnw/ggg7Px4iyzRzQh305gx0FRnJKm/2dh+smWKemr6XQp datamove@ip-10-0-1-212
+datamove@ozonm:~$ cat ~/.ssh/id_rsa_deploy_key.pub 
+ssh-rsa AAAAB3NzaC .... GjwKt Github deploy key
 ```
+Ключ - это одна строка, выдели и скопируйте ее в буфер обмена, затеп вставьте в нужную форму на сайте гитхаб. Используйте инструкцию по добавлению deploy-ключа в репозиторий https://developer.github.com/v3/guides/managing-deploy-keys/#deploy-keys (пункты 2-8; отмечать галочку Allow write access НЕ надо). Важно, что это нет то же самое что вы дела раньше для доступа на кластер. Ранее вы добавляли публичный ключ на весь аккаунт гитхаба, сейчас вы добавляете другой публичный ключ только в один репозиторий.
+
+
 
 ### Шаги проверки
 
