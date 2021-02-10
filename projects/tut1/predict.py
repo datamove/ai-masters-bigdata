@@ -17,7 +17,7 @@ logging.info("SCRIPT CALLED AS {}".format(sys.argv[0]))
 logging.info("ARGS {}".format(sys.argv[1:]))
 
 #load the model
-model = load("0.joblib")
+model = load("tut1.joblib")
 
 #fields = """doc_id,hotel_name,hotel_url,street,city,state,country,zip,class,price,
 #num_reviews,CLEANLINESS,ROOM,SERVICE,LOCATION,VALUE,COMFORT,overall_ratingsource""".replace("\n",'').split(",")
