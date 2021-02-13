@@ -46,20 +46,6 @@ fields = ["id", "label"] + numeric_features + categorical_features
 
 `/home/users/datasets/criteo/criteo_train1`
 
-### Валидационный
-
-Валидационный датасет расположен в HDFS по адресу:
-
-`/datasets/criteo_valid1_features`
-
-Истинные значения валидационного датасета:
-
-В HDFS: `/datasets/criteo_valid1_labels`
-
-в локальной директории: `/datasets/criteo_valid1_labels`
-
-Имейте в виду, что валидационном датасете вырезана вторая колонка ('label').
-
 ### Валидационный датасет для работы со срезами.
 
 Это большой, на 20 Гб датасет, на котором можно применять условия фильтрации. 
@@ -69,7 +55,11 @@ HDFS: /datasets/criteo_valid_large_features
 Истинные значения для среза: 
 
 HDFS: /datasets/criteo_valid_large_labels
-Local: /home/users/datasets/criteo_valid1_labels
+Local: /home/users/datasets/criteo/criteo_valid_large_labels
+
+Имейте в виду, что валидационном датасете вырезана вторая колонка ('label').
+
+Для отладки вы можете взять небольшой сэмпл этого датасета. Напишите map-reduce задачу для этого.
 
 ### Условие среза
 
@@ -151,7 +141,7 @@ model = load("1.joblib")
 cd ozon-masters-bigdata
 #remove output dataset if exists
 hdfs dfs -rm -r -f -skipTrash predicted.csv
-projects/1/predict.sh projects/1/predict.py,1.joblib /datasets/criteo_valid1_features predicted.csv predict.py
+projects/1/predict.sh projects/1/predict.py,1.joblib /datasets/criteo_valid_large_features predicted.csv predict.py
 ```
 
 где параметры:
@@ -195,7 +185,7 @@ def filter_cond(line_dict):
 Выше мы запускали отдельно фильтрацию и предсказания. Теперь мы запустим одну mapreduce задачу в которой мы будем фильтровать датасет на стадии map и предсказывать на стадии reduce. Преимущество - всего одна задача и не надо управлять промежуточными данными.
 
 ```
-projects/1/filter_predict.sh projects/1/filter.py,projects/1/predict.py,projects/1/filter_cond.py,1.joblib,projects/1/model.py criteo_valid_large pred_with_filter filter.py predict.py
+projects/1/filter_predict.sh projects/1/filter.py,projects/1/predict.py,projects/1/filter_cond.py,1.joblib,projects/1/model.py /datasets/criteo_valid_large_features pred_with_filter filter.py predict.py
 ```
 
 где аргументы:
@@ -205,6 +195,10 @@ projects/1/filter_predict.sh projects/1/filter.py,projects/1/predict.py,projects
 * путь к выходному файлу
 * имя файла с программой маппера, то есть filter.py.
 * имя файла с программой редьюсера, то есть predict.py.
+
+### Расчет метрики
+
+Для расчета метрики можете скопировать файл с предсказаниями в домашнюю директорию и запустить скрипт c нужной функцией из пакета sklearn. См. файл local_scorer.py
 
 
 ## Проверка
