@@ -14,14 +14,14 @@
 
 Для простоты, возьмите следующее определение полей датасета:
 
-```
+```python
 numeric_features = ["if"+str(i) for i in range(1,14)]
 categorical_features = ["cf"+str(i) for i in range(1,27)] + ["day_number"]
 
 fields = ["id", "label"] + numeric_features + categorical_features
 ```
 
-Метрика - [Log loss](<a href="http://wiki.fast.ai/index.php/Log_Loss">http://wiki.fast.ai/index.php/Log_Loss</a>).
+Метрика - [Log loss](http://wiki.fast.ai/index.php/Log_Loss).
 
 Более подробное описание задачи можно найти на сайте соревнования по ссылке выше.
 Заметьте, что в соревновании на Kaggle в датасете не было поля day_number, оно было добавлено при семплировании из расширенного датасета Criteo, в котором каждый файл данных содержал один день. Вы можете использовать day_number или нет, на ваше усмотрение.
@@ -50,11 +50,12 @@ fields = ["id", "label"] + numeric_features + categorical_features
 
 Это большой, на 20 Гб датасет, на котором можно применять условия фильтрации. 
 
-HDFS: /datasets/criteo_valid_large_features
+HDFS: /datasets/criteo/criteo_valid_large_features
 
 Истинные значения для среза: 
 
-HDFS: /datasets/criteo_valid_large_labels
+HDFS: /datasets/criteo/criteo_valid_large_labels
+
 Local: /home/users/datasets/criteo/criteo_valid_large_labels
 
 Имейте в виду, что валидационном датасете вырезана вторая колонка ('label').
@@ -63,9 +64,9 @@ Local: /home/users/datasets/criteo/criteo_valid_large_labels
 
 ### Условие среза
 
-Условие для реализации в функции filter_cond.py(см. ниже) таково:
+Условие для реализации в функции `filter_cond.py` (см. ниже) таково:
 
-Значение в поле if1 (первое числовое поле) таково, что 20 < if1 < 40.
+Значение в поле `if1` (первое числовое поле) таково, что `20 < if1 < 40`.
 
 ## Оформление работы
 
@@ -73,7 +74,7 @@ Local: /home/users/datasets/criteo/criteo_valid_large_labels
 
 Разработайте модель в виде пайплайна и сохраните ее определение в отдельном файле `projects/1/model.py`. Объект пайплайна модели должен называться `model`, например:
 
-```
+```python
 model = Pipeline(steps=[
     ('preprocessor', preprocessor),
     ('linearregression', LinearRegression())
@@ -86,7 +87,7 @@ model = Pipeline(steps=[
 
 Также в файле с моделью мы определяем поля датасета:
 
-```
+```python
 numeric_features = ["if"+str(i) for i in range(1,14)]
 categorical_features = ["cf"+str(i) for i in range(1,27)] + ["day_number"]
 
@@ -106,7 +107,7 @@ fields = ["id", "label"] + numeric_features + categorical_features
 
 Обученная модель сохраняется в файл 1.joblib используя сериализатор joblib:
 
-```
+```python
 from joblib import dump
 dump(model, "1.joblib")
 ```
@@ -115,7 +116,7 @@ dump(model, "1.joblib")
 
 Напишите shell-wrapper для train.py, который будет запускаться следующим образом:
 
-```
+```bash
 cd ozon-masters-bigdata
 projects/1/train.sh 1 /path/to/training/dataset
 ```
@@ -126,7 +127,7 @@ projects/1/train.sh 1 /path/to/training/dataset
 
 Напишите программу predict.py, которая загружает обученную модель и сохраненную ранее модель:
 
-```
+```python
 from joblib import load
 model = load("1.joblib")
 ```
@@ -137,7 +138,7 @@ model = load("1.joblib")
 
 Напишите shell-wrapper predict.sh для запуска инференса на валидационном датасете как map-reduce задачи:
 
-```
+```bash
 cd ozon-masters-bigdata
 #remove output dataset if exists
 hdfs dfs -rm -r -f -skipTrash predicted.csv
@@ -153,11 +154,11 @@ projects/1/predict.sh projects/1/predict.py,1.joblib /datasets/criteo_valid_larg
 
 ### Фильтрация датасета
 
-Разработайте скрипт filter.py для фильтрации датасета, который берет записи из датасета на стандартном входе, применяет некоторую функцию фильтрации и выводит записи, прошедшие фильтр, на стандартный вывод.
+Разработайте скрипт `filter.py` для фильтрации датасета, который берет записи из датасета на стандартном входе, применяет некоторую функцию фильтрации и выводит записи, прошедшие фильтр, на стандартный вывод.
 
-Фильтрующая функция определяется в файле filter_cond.py и имеет следующий интерфейс:
+Фильтрующая функция определяется в файле `filter_cond.py` и имеет следующий интерфейс:
 
-```
+```python
 def filter_cond(line_dict):
     """Filter function
     Takes a dict with field names and values as the argument
@@ -171,21 +172,21 @@ def filter_cond(line_dict):
 
 ### Запуск фильтрации
 
-Разработайте filter.sh, который должен запускать map-reduce задачу на кластер:
+Разработайте `filter.sh`, который должен запускать map-reduce задачу на кластер:
 
-Параметры скрипта filter.sh:
+Параметры скрипта `filter.sh`:
 
 * файлы, которые надо послать вместе с задачей, через запятую
 * путь к входному файлу
 * путь к выходному файлу
-* имя файла с программой маппером, то есть filter.py
+* имя файла с программой маппером, то есть `filter.py`
 
 ### Предсказания на срезе
 
 Выше мы запускали отдельно фильтрацию и предсказания. Теперь мы запустим одну mapreduce задачу в которой мы будем фильтровать датасет на стадии map и предсказывать на стадии reduce. Преимущество - всего одна задача и не надо управлять промежуточными данными.
 
-```
-projects/1/filter_predict.sh projects/1/filter.py,projects/1/predict.py,projects/1/filter_cond.py,1.joblib,projects/1/model.py /datasets/criteo_valid_large_features pred_with_filter filter.py predict.py
+```bash
+projects/1/filter_predict.sh projects/1/filter.py,projects/1/predict.py,projects/1/filter_cond.py,1.joblib,projects/1/model.py /datasets/criteo/criteo_valid_large_features pred_with_filter filter.py predict.py
 ```
 
 где аргументы:
@@ -208,4 +209,9 @@ projects/1/filter_predict.sh projects/1/filter.py,projects/1/predict.py,projects
 Запустите чекер:
 
 `checker.sh 1`
+
+Добейтесь PASSED 1.
+
+Сделайте скриншот и отправьте в Классрум.
+
 
