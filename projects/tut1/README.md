@@ -4,7 +4,7 @@
 
 ## Общие принципы заданий
 
-* Большие данные служит задачам машинного обучения
+* Большие данные служат задачам машинного обучения
   * в каждом задании у вас будет модель машинного обучения
 * Большие данные (и вообще production) накладывают определенные рамки из задают определенный формат работы
   * мы делаем для вас такие рамки
@@ -108,7 +108,7 @@ projects/tut1/train.sh tut1 projects/tut1/hotels.csv
 
 ## Предсказания (инференс)
 
-Напишите программу predict.py, которая загружает обученную модель и сохраненную ранее модель:
+Напишите программу predict.py, которая загружает обученную и сохраненную ранее модель:
 
 ```
 from joblib import load
@@ -124,7 +124,7 @@ model = load("tut1.joblib")
 ```
 cd ozon-masters-bigdata
 #copy input dataset to HDFS
-hdfs dfs -copyFromLocal hotels.csv hotels.csv
+hdfs dfs -copyFromLocal projects/tut1/hotels.csv hotels.csv
 #remove output dataset if exists
 hdfs dfs -rm -r -f predicted.csv
 projects/tut1/predict.sh projects/tut1/predict.py,projects/tut1/model.py,tut1.joblib hotels.csv predicted.csv predict.py
@@ -390,21 +390,21 @@ PASSED 1
 
 ```
 cd ozon-masters-bigdata
-hdfs dfs -rm -f -r -skipTrash filtered.csv
-projects/tut1/filter.sh projects/tut1/filter.py,projects/tut1/filter_cond.py hotels.csv filtered-target.csv "filter.py +overall_ratingsource"
+hdfs dfs -rm -f -r -skipTrash filtered-target.csv
+projects/tut1/filter.sh projects/tut1/filter.py,projects/tut1/filter_cond.py,projects/tut1/model.py hotels.csv filtered-target.csv "filter.py +overall_ratingsource"
 ```
 
 #### Фильтрация с выводом только признаков
 
 ```
 cd ozon-masters-bigdata
-hdfs dfs -rm -f -r -skipTrash filtered.csv
-projects/tut1/filter.sh projects/tut1/filter.py,projects/tut1/filter_cond.py hotels.csv filtered-features.csv  "filter.py -overall_ratingsource"
+hdfs dfs -rm -f -r -skipTrash filtered-features.csv
+projects/tut1/filter.sh projects/tut1/filter.py,projects/tut1/filter_cond.py,projects/tut1/model.py hotels.csv filtered-features.csv  "filter.py -overall_ratingsource"
 ```
 
 ### Расчет метрики на кластере
 
-Разработайте программу для подсчета выбранной метрики на кластере. Вспомните, что у нас filtered-target.csv и predicted.csv содержат идентификатор записи. Воспользуемся им в качестве ключа для редюсера. Маппер нам не нужен, вернее, мы воспользуемся им для объединения filtered-target.csv и predicted.csv. Затем понадобится стадия shuffle, после которой записи будут отсортированы по ключу, то есть иметь вид:
+Разработайте программу для подсчета выбранной метрики на кластере. Вспомните, что у нас filtered-target.csv и pred_with_filter содержат идентификатор записи. Воспользуемся им в качестве ключа для редюсера. Маппер нам не нужен, вернее, мы воспользуемся им для объединения filtered-target.csv и pred_with_filter. Затем понадобится стадия shuffle, после которой записи будут отсортированы по ключу, то есть иметь вид:
 
 ```
 usa_san francisco_the_herbert_hotel,3.3796997285893906	
@@ -419,7 +419,7 @@ usa_san francisco_the_herbert_hotel,3.4216216216216218
 
 ```
 hdfs dfs -rm -r -f -skipTrash score
-projects/tut1/scorer.sh projects/tut1/scorer.py filtered-target.csv predicted.csv score scorer.py
+projects/tut1/scorer.sh projects/tut1/scorer.py filtered-target.csv pred_with_filter score scorer.py
 ```
 
 где аргументы:

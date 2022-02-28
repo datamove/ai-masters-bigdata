@@ -30,7 +30,7 @@ fields = ["id", "label"] + numeric_features + categorical_features
 
 Однако просто скопировать весь код не удастся, надо будет немного поработать над ним.
 
-Вы можете пользоваться моделями, описанными на форуме соревнования, искать среди них идеи, но ваше решение все равно должно укладываться в заданные рамки оформления работы, см. ниже. Мы не устраиваем соревнования, и поэтому вам не стоит приланать лишних усилий по улучшению метрики.
+Вы можете пользоваться моделями, описанными на форуме соревнования, искать среди них идеи, но ваше решение все равно должно укладываться в заданные рамки оформления работы, см. ниже. Мы не устраиваем соревнования, и поэтому вам не стоит прилагать лишних усилий по улучшению метрики.
 
 ## Условие прохождения
 
@@ -125,7 +125,7 @@ projects/1/train.sh 1 /path/to/training/dataset
 
 ### Предсказания (инференс)
 
-Напишите программу predict.py, которая загружает обученную модель и сохраненную ранее модель:
+Напишите программу predict.py, которая загружает обученную и сохраненную ранее модель:
 
 ```python
 from joblib import load
@@ -142,7 +142,7 @@ model = load("1.joblib")
 cd ozon-masters-bigdata
 #remove output dataset if exists
 hdfs dfs -rm -r -f -skipTrash predicted.csv
-projects/1/predict.sh projects/1/predict.py,1.joblib /datasets/criteo_valid_large_features predicted.csv predict.py
+projects/1/predict.sh projects/1/predict.py,1.joblib,projects/1/model.py /datasets/criteo_valid_large_features predicted.csv predict.py
 ```
 
 где параметры:
