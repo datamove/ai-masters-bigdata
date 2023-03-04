@@ -1,8 +1,11 @@
 #!/bin/bash
 
-HADOOP_CUR=/usr/hdp/current/
-HADOOP_EXE=$HADOOP_CUR/hadoop-client/bin/hadoop
-HADOOP_STREAM_JAR=$HADOOP_CUR/hadoop-mapreduce-client/hadoop-streaming.jar
+#HADOOP_CUR=/usr/hdp/current/
+#HADOOP_EXE=$HADOOP_CUR/hadoop-client/bin/hadoop
+#HADOOP_STREAM_JAR=$HADOOP_CUR/hadoop-mapreduce-client/hadoop-streaming.jar
+HADOOP_EXE=/usr/bin/yarn
+HADOOP_STREAM_JAR=/usr/lib/hadoop-mapreduce/hadoop-streaming.jar
+
 FILES=$1
 INPUT=$2
 OUTPUT=$3
