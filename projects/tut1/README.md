@@ -30,12 +30,12 @@
 * обучение модели на заданном тренровочном датасете (локально)
 * валидация модели на заданном валидационном датасете (локально или на кластере)
 * валидация фильтрации и предсказания на фильтрованном датасете для заданного валидационного датасета и условий фильтрации (на кластере).
-* коммит кода в ваш приватный репо `ozon-masters-bigdata`
+* коммит кода в ваш приватный репо `ai-masters-bigdata`
 * вызов проверки
 
 ## Оформление работы
 
-Создайте в гитхабе репозиторий `ozon-masters-bigdata`. В папке репозитория создайте рекурсивно папки `projects/tut1`. Все ваши файлы с моделями и кодом для тренировки и инференса будут располагаться в этой папке.
+Создайте в гитхабе репозиторий `ai-masters-bigdata`. В папке репозитория создайте рекурсивно папки `projects/tut1`. Все ваши файлы с моделями и кодом для тренировки и инференса будут располагаться в этой папке.
 
 Вот файлы референсного проекта:
 
@@ -100,11 +100,11 @@ dump(model, "tut1.joblib")
 Напишите shell-wrapper для train.py, который будет запускаться из корня репо следующим образом:
 
 ```
-cd ozon-masters-bigdata
+cd ai-masters-bigdata
 projects/tut1/train.sh tut1 projects/tut1/hotels.csv
 ```
 
-где tut1 - номер проекта, hotels.csv - путь к файлу с тренировочной выборкой (включен в папке проекта в репо datamove/ozon-masters-bigdata).
+где tut1 - номер проекта, hotels.csv - путь к файлу с тренировочной выборкой (включен в папке проекта в репо datamove/ai-masters-bigdata).
 
 ## Предсказания (инференс)
 
@@ -122,7 +122,7 @@ model = load("tut1.joblib")
 Напишите shell-wrapper predict.sh для запуска инференса как map-reduce задачи на кластере:
 
 ```
-cd ozon-masters-bigdata
+cd ai-masters-bigdata
 #copy input dataset to HDFS
 hdfs dfs -copyFromLocal hotels.csv hotels.csv
 #remove output dataset if exists
@@ -174,7 +174,7 @@ def filter_cond(line_dict):
 Помните, что если путь к файлам hotels.csv and filtered.csv задан без '/' в начале, то  файлы берутся относительно вашей домашней директории в HDFS /user/$USER.
 
 ```
-cd ozon-masters-bigdata
+cd ai-masters-bigdata
 hdfs dfs -rm -f -r filtered.csv
 projects/tut1/filter.sh projects/tut1/filter.py,projects/tut1/filter_cond.py,projects/tut1/model.py hotels.csv filtered.csv filter.py
 ```
@@ -208,12 +208,12 @@ projects/tut1/filter_predict.sh projects/tut1/filter.py,projects/tut1/predict.py
 Запуск метрики:
 
 ```
-$ projects/tut1/scorer_local.py projects/tut1/filtered-target.csv  'http://name1:50070/webhdfs/v1/user/'$USER'/pred_with_filter/part-00000?op=OPEN'
-INFO:root:CURRENT_DIR /home/users/datamove/ozon-masters-bigdata
+$ projects/tut1/scorer_local.py projects/tut1/filtered-target.csv  'http://name1:9870/webhdfs/v1/user/'$USER'/pred_with_filter/part-00000?op=OPEN'
+INFO:root:CURRENT_DIR /home/users/datamove/ai-masters-bigdata
 INFO:root:SCRIPT CALLED AS projects/tut1/scorer_local.py
-INFO:root:ARGS ['projects/tut1/filtered-target.csv', 'http://name1:50070/webhdfs/v1/user/datamove/pred_with_filter/part-00000?op=OPEN']
+INFO:root:ARGS ['projects/tut1/filtered-target.csv', 'http://name1:9870/webhdfs/v1/user/datamove/pred_with_filter/part-00000?op=OPEN']
 INFO:root:TRUE PATH projects/tut1/filtered-target.csv
-INFO:root:PRED PATH http://head1:50070/webhdfs/v1/user/datamove/pred_with_filter/part-00000?op=OPEN
+INFO:root:PRED PATH http://name1:9870/webhdfs/v1/user/datamove/pred_with_filter/part-00000?op=OPEN
 INFO:root:TRUE RECORDS 1746
 INFO:root:PRED RECORDS 1746
 0.096756706895581
@@ -264,22 +264,22 @@ datamove@ozonm:~$ checker.sh tut1
 ATTEMPT 17
 DEPLOY_KEY=/home/ubuntu/.ssh/id_rsa_deploy_key_datamove
 GIT_SSH_COMMAND=ssh -i /home/ubuntu/.ssh/id_rsa_deploy_key_datamove -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
-git clone git@github.com:datamove/ozon-masters-bigdata.git
-Cloning into 'ozon-masters-bigdata'...
+git clone git@github.com:datamove/ai-masters-bigdata.git
+Cloning into 'ai-masters-bigdata'...
 Warning: Permanently added 'github.com,140.82.121.3' (RSA) to the list of known hosts.
 warning: unable to access '/home/users/datamove/.config/git/attributes': Permission denied
-ATEMPTDIR /home/ubuntu/ozonmasters-checkers/hws/tut1/datamove/17
-WORKDIR /home/ubuntu/ozonmasters-checkers/hws/tut1/datamove/17/ozon-masters-bigdata
+ATEMPTDIR /home/ubuntu/aimasters-checkers/hws/tut1/datamove/17
+WORKDIR /home/ubuntu/aimasters-checkers/hws/tut1/datamove/17/ai-masters-bigdata
 =
 = Train the model
 =
-INFO:root:CURRENT_DIR /home/ubuntu/ozonmasters-checkers/hws/tut1/datamove/17/ozon-masters-bigdata
+INFO:root:CURRENT_DIR /home/ubuntu/aimasters-checkers/hws/tut1/datamove/17/ai-masters-bigdata
 INFO:root:SCRIPT CALLED AS projects/tut1/train.py
 INFO:root:ARGS ['tut1', 'projects/tut1/hotels.csv']
 INFO:root:TRAIN_ID tut1
 INFO:root:TRAIN_PATH projects/tut1/hotels.csv
 INFO:root:model score: 0.989
-CHECK EXISTS http://name1:50070/webhdfs/v1/user/ubuntu/students/datamove?op=GETFILESTATUS
+CHECK EXISTS http://name1:9870/webhdfs/v1/user/ubuntu/students/datamove?op=GETFILESTATUS
 =
 = Launch filter-predict
 =
@@ -367,11 +367,11 @@ packageJobJar: [] [/usr/hdp/3.1.4.0-315/hadoop-mapreduce/hadoop-streaming-3.1.1.
 =
 = Launch scorer
 =
-INFO:root:CURRENT_DIR /home/ubuntu/ozonmasters-checkers/hws/tut1/datamove/17/ozon-masters-bigdata
+INFO:root:CURRENT_DIR /home/ubuntu/aimasters-checkers/hws/tut1/datamove/17/ozon-masters-bigdata
 INFO:root:SCRIPT CALLED AS projects/tut1/scorer_local.py
-INFO:root:ARGS ['/tmp/filtered-target.csv', 'http://name1:50070/webhdfs/v1/user/ubuntu/students/datamove/predict/part-00000?op=OPEN']
+INFO:root:ARGS ['/tmp/filtered-target.csv', 'http://name1:9870/webhdfs/v1/user/ubuntu/students/datamove/predict/part-00000?op=OPEN']
 INFO:root:TRUE PATH /tmp/filtered-target.csv
-INFO:root:PRED PATH http://name1:50070/webhdfs/v1/user/ubuntu/students/datamove/predict/part-00000?op=OPEN
+INFO:root:PRED PATH http://name1:9870/webhdfs/v1/user/ubuntu/students/datamove/predict/part-00000?op=OPEN
 INFO:root:TRUE RECORDS 1746
 INFO:root:PRED RECORDS 1746
 =
@@ -389,7 +389,7 @@ PASSED 1
 #### Фильтрация с выводом только целевой переменной
 
 ```
-cd ozon-masters-bigdata
+cd ai-masters-bigdata
 hdfs dfs -rm -f -r -skipTrash filtered.csv
 projects/tut1/filter.sh projects/tut1/filter.py,projects/tut1/filter_cond.py hotels.csv filtered-target.csv "filter.py +overall_ratingsource"
 ```
@@ -397,7 +397,7 @@ projects/tut1/filter.sh projects/tut1/filter.py,projects/tut1/filter_cond.py hot
 #### Фильтрация с выводом только признаков
 
 ```
-cd ozon-masters-bigdata
+cd ai-masters-bigdata
 hdfs dfs -rm -f -r -skipTrash filtered.csv
 projects/tut1/filter.sh projects/tut1/filter.py,projects/tut1/filter_cond.py hotels.csv filtered-features.csv  "filter.py -overall_ratingsource"
 ```
